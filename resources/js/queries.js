@@ -2,7 +2,22 @@ import Vue from 'vue';
 import axios from 'axios';
 
 let queries = {
-
+    getWeather: `query getWeather($city: String) {
+        getWeather(city: $city)  {
+            error,
+            message,
+            forecasts {
+                min_temp,
+                max_temp,
+                feels_like,
+                temp,
+                date,
+                weather,
+                wind_speed,
+                pop
+            }
+        }
+    }`
 }
 
 let adminQueries = [];
