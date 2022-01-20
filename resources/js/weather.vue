@@ -1,11 +1,10 @@
 <template>
     <div class="weather-bg">
         <b-container> 
-            <b-row class="pt-4">
-                <b-col>
-                    <b-form @submit="onSubmit" >
+            <b-row class="pt-4 align-items-left">
+                <b-col >
+                    <b-form @submit="onSubmit">
                         <b-form-group
-                            label="Enter City:"
                             label-for="input-1"
                         >
                             <b-form-input
@@ -16,7 +15,7 @@
                             required
                             ></b-form-input>
                         </b-form-group>
-                        <b-button type="submit" >Submit</b-button>
+                        <b-button type="submit" variant="primary" >Submit</b-button>
                     </b-form>
                 </b-col>
             </b-row>
