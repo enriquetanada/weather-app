@@ -50,33 +50,31 @@ class Weather extends Eloquent
     }
 
     private function getCityWeather($city) {
+       
         $client = new Client();
         $response = new \stdClass();
         try {
             $res = $client->get('https://api.openweathermap.org/data/2.5/forecast?q='.$city.'&appid='.$this->api_key_weather.'&units=metric');
             $responses = json_decode($res->getBody()->getContents());
-            
+           
             $after_hour = date('H:i:s', strtotime(' + 2 hours'));
             $before_hour = date('H:i:s', strtotime(' - 1 hours'));
             $filtered_output = [];
+            $filtered_time = [];
             foreach($responses->list as $list) {
                 $time = date('H:i:s', strtotime($list->dt_txt));
-                if($time > $before_hour && $time < $after_hour) {
-                    $response_obj = new \stdClass();
-                    $response_obj->min_temp = $list->main->temp_min;
-                    $response_obj->max_temp = $list->main->temp_max;
-                    $response_obj->feels_like = $list->main->feels_like;
-                    $response_obj->temp = $list->main->temp;
-                    $response_obj->date = $list->dt_txt;
-                    $response_obj->weather = $list->weather[0]->main;
-                    $response_obj->wind_speed = $list->wind->speed;
-                    $response_obj->pop = $list->pop;
+                if($time > $before_hour && $time < $after_hour && $after_hour > $before_hour) {
+                    $response_obj = self::returnObject($list);
                     array_push($filtered_output, $response_obj);
+                } 
+                if($time == "00:00:00"){
+                    $response_obj = self::returnObject($list);
+                    array_push($filtered_time, $response_obj);
                 }
             }
             $response->error = false;
             $response->message = 'Valid Place';
-            $response->forecasts = $filtered_output;
+            $response->forecasts = $filtered_output ? $filtered_output : $filtered_time;
         } catch(\GuzzleHttp\Exception\ClientException $e){
             $response->error = true;
             $response->message = 'Invalid Place';
@@ -85,7 +83,19 @@ class Weather extends Eloquent
             return $response;
         }
        
-       
-        
+    }
+    private function returnObject($list){
+        $response_obj = new \stdClass();
+
+        $response_obj->min_temp = $list->main->temp_min;
+        $response_obj->max_temp = $list->main->temp_max;
+        $response_obj->feels_like = $list->main->feels_like;
+        $response_obj->temp = $list->main->temp;
+        $response_obj->date = $list->dt_txt;
+        $response_obj->weather = $list->weather[0]->main;
+        $response_obj->wind_speed = $list->wind->speed;
+        $response_obj->pop = $list->pop;
+
+        return $response_obj;
     }
 }
