@@ -10,28 +10,25 @@ use GraphQL\Type\Definition\CustomScalarType;
 use Crypt;
 
 
-class WeatherType extends GraphQLType
+class PlaceType extends GraphQLType
 {
     protected $attributes = [
-        'name' => 'WeatherType',
-        'description' => 'A weather type information',
+        'name' => 'PlaceType',
+        'description' => 'A place type information',
         'model' => Weather::class,
     ];
 
     public function fields(): array
     {
         return [
-            'error' => [  
-               'type' => Type::boolean(),    
+            'name' => [  
+               'type' => Type::string(),    
             ],
-            'message' => [  
+            'image' => [  
                 'type' => Type::string(),    
             ],
-            'forecasts' => [
-                'type' => Type::listOf(GraphQL::type('forecast')),
-            ],
-            'places' => [
-                'type' => Type::listOf(GraphQL::type('place')),
+            'address' => [
+                'type' => Type::string(),
             ]
         ];
     }

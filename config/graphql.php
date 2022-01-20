@@ -111,6 +111,7 @@ return [
         // \Rebing\GraphQL\Support\UploadType::class,
         'weather' => App\GraphQL\Types\WeatherType::class,
         'forecast' => App\GraphQL\Types\ForecastType::class,
+        'place' => App\GraphQL\Types\PlaceType::class,
     ],
 
     // The types will be loaded on demand. Default is to load all types on each request

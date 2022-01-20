@@ -18,35 +18,12 @@ class Weather extends Eloquent
 
         $default_place = 'Tokyo';
         
-        //get weather
         if($city) {
             $responses = self::getCityWeather($city);
         } else {
             $responses = self::getCityWeather($default_place);
         }
-        
         return $responses;
-        //get location details
-
-
-        // $response = $client->request('GET', 'https://api.foursquare.com/v3/places/search?near=tokyo', [
-        //     'headers' => [
-        //       'Accept' => 'application/json',
-        //       'Authorization' => $api_key_place,
-        //     ],
-        //   ]);
-        // dd(json_decode($response->getBody()->getContents()));
-
-        //get photos
-        //fs_q_id = 4b5ff761f964a520f1d129e3
-
-        // $response = $client->request('GET', 'https://api.foursquare.com/v3/places/4b267bacf964a520297c24e3/photos', [
-        //     'headers' => [
-        //       'Accept' => 'application/json',
-        //       'Authorization' => $api_key_place,
-        //     ],
-        // ]);
-        // dd(json_decode($response->getBody()->getContents()));
     }
 
     private function getCityWeather($city) {
@@ -75,6 +52,7 @@ class Weather extends Eloquent
             $response->error = false;
             $response->message = 'Valid Place';
             $response->forecasts = $filtered_output ? $filtered_output : $filtered_time;
+            $response->places = self::getNearPlaces($city);
         } catch(\GuzzleHttp\Exception\ClientException $e){
             $response->error = true;
             $response->message = 'Invalid Place';
@@ -97,5 +75,44 @@ class Weather extends Eloquent
         $response_obj->pop = $list->pop;
 
         return $response_obj;
+    }
+
+    private function getNearPlaces($city){
+        
+        $client = new Client();
+        $response;
+        try {
+            $res = $client->request('GET', 'https://api.foursquare.com/v3/places/search?near='.$city, [
+                'headers' => [
+                  'Accept' => 'application/json',
+                  'Authorization' => $this->api_key_place,
+                ],
+              ]);
+            $responses = json_decode($res->getBody()->getContents());
+            $filtered_output = [];
+            foreach($responses->results as $resp) {
+                $response_obj = new \stdClass();
+                $image = $client->request('GET', 'https://api.foursquare.com/v3/places/'.$resp->fsq_id.'/photos', [
+                        'headers' => [
+                          'Accept' => 'application/json',
+                          'Authorization' => $this->api_key_place,
+                        ],
+                    ]);
+                $image_decode = json_decode($image->getBody()->getContents());
+                $resp->image = 
+                $resp->address = $resp->location->address;
+                $response_obj->image = $image_decode[0]->prefix . '400x400' . $image_decode[0]->suffix;
+                $response_obj->name = $resp->name;
+                $response_obj->address = $resp->location->address;
+                array_push($filtered_output,  $response_obj);
+            }    
+            $response = $filtered_output;
+            
+        } catch(\GuzzleHttp\Exception\ClientException $e){
+            $response = $e;
+        } finally {
+            return $response;
+        }
+       
     }
 }

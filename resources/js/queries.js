@@ -15,6 +15,11 @@ let queries = {
                 weather,
                 wind_speed,
                 pop
+            },
+            places {
+                name,
+                address,
+                image
             }
         }
     }`

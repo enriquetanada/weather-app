@@ -19,5 +19,9 @@
         z-index: 9999;
         background: url('/../images/loading.gif') no-repeat center;   
     }
+
+    &-card {
+        min-height: 50vh;
+    }
     
 }
